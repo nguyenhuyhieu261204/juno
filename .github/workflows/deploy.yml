@@ -96,8 +96,8 @@ jobs:
       - name: "Update Deployment Images"
         run: |
           echo "Updating deployment images..."
-          kubectl set image deployment/juno-frontend juno-frontend=$FRONTEND_IMAGE --namespace=juno-app
-          kubectl set image deployment/juno-backend juno-backend=$BACKEND_IMAGE --namespace=juno-app
+          kubectl set image deployment/juno-frontend client=$FRONTEND_IMAGE --namespace=juno-app
+          kubectl set image deployment/juno-backend server=$BACKEND_IMAGE --namespace=juno-app
 
       - name: "Summary"
         run: |
