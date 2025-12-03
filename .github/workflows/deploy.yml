@@ -105,12 +105,16 @@ jobs:
           echo "Frontend Image: $FRONTEND_IMAGE"
           echo "Backend Image: $BACKEND_IMAGE"
           echo ""
-          echo "Ingress External IP:"
-          INGRESS_IP=$(kubectl get ingress -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}')
-          if [ -z "$INGRESS_IP" ]; then
-          echo "Ingress IP not ready yet. Please check with: kubectl get ingress"
-          else
-          echo "$INGRESS_IP"
-          fi
           echo "Deployment to GKE Autopilot cluster completed successfully!"
+          echo ""
+          echo "Checking ingress status..."
+          kubectl get ingress --namespace=juno-app
+          echo ""
+          INGRESS_IP=$(kubectl get ingress --namespace=juno-app -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
+          if [ -z "$INGRESS_IP" ]; then
+            echo "Ingress IP not ready yet. It may take a few minutes for the load balancer to provision."
+            echo "You can check the IP later with: kubectl get ingress --namespace=juno-app"
+          else
+            echo "Ingress External IP: $INGRESS_IP"
+          fi
           echo "--------------------------------------------------------"
