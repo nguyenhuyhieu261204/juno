@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: juno-config
+data:
+  PORT: "8000"
+  SESSION_EXPIRES_IN: "1d"
+  GOOGLE_CALLBACK_URL: "http://localhost:8000/api/auth/google/callback"
+  FRONTEND_ORIGIN: "http://localhost:3000"
+  FRONTEND_GOOGLE_CALLBACK_URL: "http://localhost:3000/google/callback"

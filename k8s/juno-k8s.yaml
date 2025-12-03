@@ -1,0 +1,15 @@
+# Apply all Kubernetes manifests for Juno application
+# This includes:
+# - ConfigMap with application configuration
+# - Secret template for sensitive data
+# - Backend deployment and service
+# - Ingress for external access
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: juno-app
+---
+# Use this file to define how to deploy the Juno application to Kubernetes
+# To apply: kubectl apply -f juno-k8s.yaml
+# To delete: kubectl delete -f juno-k8s.yaml

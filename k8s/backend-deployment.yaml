@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: juno-backend
+  labels:
+    app: juno-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: juno-backend
+  template:
+    metadata:
+      labels:
+        app: juno-backend
+    spec:
+      containers:
+      - name: backend
+        image: juno-backend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: PORT
+          value: "8000"
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: juno-secrets
+              key: mongo-uri
+        - name: SESSION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: juno-secrets
+              key: session-secret
+        - name: SESSION_EXPIRES_IN
+          value: "1d"
+        - name: GOOGLE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: juno-secrets
+              key: google-client-id
+        - name: GOOGLE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: juno-secrets
+              key: google-client-secret
+        - name: GOOGLE_CALLBACK_URL
+          value: "http://localhost:8000/api/auth/google/callback"
+        - name: FRONTEND_ORIGIN
+          value: "http://localhost:3000"
+        - name: FRONTEND_GOOGLE_CALLBACK_URL
+          value: "http://localhost:3000/google/callback"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health/live
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: juno-backend-service
+  labels:
+    app: juno-backend
+spec:
+  type: ClusterIP
+  selector:
+    app: juno-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+      name: http
