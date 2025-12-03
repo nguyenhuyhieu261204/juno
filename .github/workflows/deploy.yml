@@ -1,0 +1,116 @@
+name: "Build Image And Deploy to GKE"
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_LOCATION: ${{ secrets.GCP_LOCATION }}
+  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  GCP_FRONTEND_REPO: ${{ secrets.GCP_FRONTEND_REPO }}
+  GCP_BACKEND_REPO: ${{ secrets.GCP_BACKEND_REPO }}
+  GCP_FRONTEND_IMAGE: ${{ secrets.GCP_FRONTEND_IMAGE }}
+  GCP_BACKEND_IMAGE: ${{ secrets.GCP_BACKEND_IMAGE }}
+  GCP_CLUSTER_NAME: ${{ secrets.GCP_CLUSTER_NAME }}
+  GCP_CLUSTER_REGION: ${{ secrets.GCP_CLUSTER_REGION }}
+
+  MONGO_URL: ${{secrets.MONGO_URL}}
+  SESSION_SECRET: ${{secrets.SESSION_SECRET}}
+  GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+  GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+
+jobs:
+  build-deploy:
+    name: "Build and Deploy"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Authenticate to Google Cloud"
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ env.GCP_SA_KEY }}
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: "Set up Cloud SDK"
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: "Configure Docker"
+        run: |
+          gcloud auth configure-docker ${{ env.GCP_LOCATION }}-docker.pkg.dev --quiet
+
+      - name: "Set Image Variables"
+        run: |
+          echo "FRONTEND_IMAGE=${{ env.GCP_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_FRONTEND_REPO }}/${{ env.GCP_FRONTEND_IMAGE }}:${{ github.sha }}" >> $GITHUB_ENV
+          echo "BACKEND_IMAGE=${{ env.GCP_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_BACKEND_REPO }}/${{ env.GCP_BACKEND_IMAGE }}:${{ github.sha }}" >> $GITHUB_ENV
+          echo "Frontend Image: $FRONTEND_IMAGE"
+          echo "Backend Image: $BACKEND_IMAGE"
+
+      - name: "Build And Push Frontend Image"
+        run: |
+          docker build -t $FRONTEND_IMAGE ./client
+          docker push $FRONTEND_IMAGE
+
+      - name: "Build And Push Backend Image"
+        run: |
+          docker build -t $BACKEND_IMAGE ./backend
+          docker push $BACKEND_IMAGE
+
+      - name: "Set up GKE credentials"
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.GCP_CLUSTER_NAME }}
+          location: ${{ env.GCP_CLUSTER_REGION }}
+
+      - name: "Create Namespace"
+        run: |
+          kubectl create namespace juno-app --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: "Apply ConfigMap"
+        run: |
+          kubectl apply -f k8s/configmap.yaml
+
+      - name: "Apply Secret"
+        run: |
+          kubectl create secret generic juno-secrets \
+          --namespace=juno-app \
+          --from-literal=mongo-uri='${{env.MONGO_URL}}' \
+          --from-literal=session-secret='${{env.SESSION_SECRET}}' \
+          --from-literal=google-client-id='${{env.GOOGLE_CLIENT_ID}}' \
+          --from-literal=google-client-secret='${{env.GOOGLE_CLIENT_SECRET}}' \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: "Apply Deployments"
+        run: |
+          kubectl apply -f k8s/backend-deployment.yaml
+          kubectl apply -f k8s/frontend-deployment.yaml
+
+      - name: "Apply Ingress"
+        run: |
+          kubectl apply -f k8s/ingress.yaml
+
+      - name: "Update Deployment Images"
+        run: |
+          echo "Updating deployment images..."
+          kubectl set image deployment/juno-frontend juno-frontend=$FRONTEND_IMAGE --namespace=juno-app
+          kubectl set image deployment/juno-backend juno-backend=$BACKEND_IMAGE --namespace=juno-app
+
+      - name: "Summary"
+        run: |
+          echo "--------------------------------------------------------"
+          echo "Frontend Image: $FRONTEND_IMAGE"
+          echo "Backend Image: $BACKEND_IMAGE"
+          echo ""
+          echo "Ingress External IP:"
+          INGRESS_IP=$(kubectl get ingress -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}')
+          if [ -z "$INGRESS_IP" ]; then
+          echo "Ingress IP not ready yet. Please check with: kubectl get ingress"
+          else
+          echo "$INGRESS_IP"
+          fi
+          echo "Deployment to GKE Autopilot cluster completed successfully!"
+          echo "--------------------------------------------------------"

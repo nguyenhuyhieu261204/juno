@@ -1,10 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  namespace: juno-app
   name: juno-config
 data:
-  PORT: "8000"
-  SESSION_EXPIRES_IN: "1d"
-  GOOGLE_CALLBACK_URL: "http://localhost:8000/api/auth/google/callback"
-  FRONTEND_ORIGIN: "http://localhost:3000"
-  FRONTEND_GOOGLE_CALLBACK_URL: "http://localhost:3000/google/callback"
+  port: "8000"
+  session-expires-in: "1d"
+  google-callback-url: "http://localhost:8000/api/auth/google/callback"
+  frontend-origin: "http://localhost:3000"
+  frontend-google_callback_url: "http://localhost:3000/google/callback"

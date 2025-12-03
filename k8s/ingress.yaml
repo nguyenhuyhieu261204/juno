@@ -2,24 +2,25 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: juno-ingress
+  namespace: juno-app
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
-  - http:
-      paths:
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: juno-backend-service
-            port:
-              number: 80
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: juno-frontend-service
-            port:
-              number: 80
+    - http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: juno-backend-service
+                port:
+                  number: 80
+          - path: /()(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: juno-frontend-service
+                port:
+                  number: 80

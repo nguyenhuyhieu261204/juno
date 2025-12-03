@@ -1,8 +1,10 @@
 # Apply all Kubernetes manifests for Juno application
 # This includes:
+# - Namespace for the application
 # - ConfigMap with application configuration
 # - Secret template for sensitive data
 # - Backend deployment and service
+# - Frontend deployment and service
 # - Ingress for external access
 
 apiVersion: v1
