@@ -25,7 +25,7 @@ spec:
           env:
             - name: PORT
               valueFrom:
-                configMapRef:
+                configMapKeyRef:
                   name: juno-config
                   key: port
             - name: MONGO_URI
@@ -40,7 +40,7 @@ spec:
                   key: session-secret
             - name: SESSION_EXPIRES_IN
               valueFrom:
-                configMapRef:
+                configMapKeyRef:
                   name: juno-config
                   key: session-expires-in
             - name: GOOGLE_CLIENT_ID
@@ -55,17 +55,17 @@ spec:
                   key: google-client-secret
             - name: GOOGLE_CALLBACK_URL
               valueFrom:
-                configMapRef:
+                configMapKeyRef:
                   name: juno-config
                   key: google-callback-url
             - name: FRONTEND_ORIGIN
               valueFrom:
-                configMapRef:
+                configMapKeyRef:
                   name: juno-config
                   key: frontend-origin
             - name: FRONTEND_GOOGLE_CALLBACK_URL
               valueFrom:
-                configMapRef:
+                configMapKeyRef:
                   name: juno-config
                   key: frontend-google_callback_url
           resources:
