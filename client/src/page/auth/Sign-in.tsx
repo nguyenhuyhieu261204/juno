@@ -85,7 +85,7 @@ const SignIn = () => {
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-xl">Welcome back</CardTitle>
+              <CardTitle className="text-xl">Welcome Back</CardTitle>
               <CardDescription>
                 Login with your Email or Google account
               </CardDescription>
