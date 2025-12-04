@@ -72,8 +72,8 @@ jobs:
 
       - name: "Optimize Cert-Manager Resources for Autopilot"
         run: |
-          kubectl patch deployment cert-manager -n cert-manager --patch='{"spec":{"template":{"spec":{"containers":[{"name":"cert-manager","resources":{"requests":{"cpu":"50m","memory":"100Mi"},"limits":{"cpu":"100m","memory":"200Mi"}}}]}}}}'
-          kubectl patch deployment cert-manager-webhook -n cert-manager --patch='{"spec":{"template":{"spec":{"containers":[{"name":"cert-manager-webhook","resources":{"requests":{"cpu":"100m","memory":"150Mi"},"limits":{"cpu":"200m","memory":"300Mi"}}}]}}}}'
+          kubectl patch deployment cert-manager -n cert-manager --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/resources", "value": {"requests": {"cpu": "50m", "memory": "100Mi"}, "limits": {"cpu": "100m", "memory": "200Mi"}}}]'
+          kubectl patch deployment cert-manager-webhook -n cert-manager --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/resources", "value": {"requests": {"cpu": "100m", "memory": "150Mi"}, "limits": {"cpu": "200m", "memory": "300Mi"}}}]'
 
       - name: "Wait for Cert-Manager Ready"
         run: |
