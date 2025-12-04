@@ -6,6 +6,6 @@ metadata:
 data:
   port: "8000"
   session-expires-in: "1d"
-  google-callback-url: "http://localhost:8000/api/auth/google/callback"
-  frontend-origin: "http://localhost:3000"
-  frontend-google_callback_url: "http://localhost:3000/google/callback"
+  google-callback-url: "https://juno-hieu261204.xyz/api/auth/google/callback"
+  frontend-origin: "https://juno-hieu261204.xyz"
+  frontend-google_callback_url: "https://juno-hieu261204.xyz/google/callback"
