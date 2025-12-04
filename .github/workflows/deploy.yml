@@ -66,27 +66,6 @@ jobs:
           cluster_name: ${{ env.GCP_CLUSTER_NAME }}
           location: ${{ env.GCP_CLUSTER_REGION }}
 
-      - name: "Verify Cert-Manager Installation"
-        run: |
-          kubectl get pods -n cert-manager
-
-      - name: "Optimize Cert-Manager Resources for Autopilot"
-        run: |
-          kubectl patch deployment cert-manager -n cert-manager --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/resources", "value": {"requests": {"cpu": "50m", "memory": "100Mi"}, "limits": {"cpu": "100m", "memory": "200Mi"}}}]'
-          kubectl patch deployment cert-manager-webhook -n cert-manager --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/resources", "value": {"requests": {"cpu": "100m", "memory": "150Mi"}, "limits": {"cpu": "200m", "memory": "300Mi"}}}]'
-
-      - name: "Wait for Cert-Manager Ready"
-        run: |
-          kubectl wait --for=condition=available deployment/cert-manager --namespace cert-manager --timeout=300s
-          kubectl wait --for=condition=available deployment/cert-manager-webhook --namespace cert-manager --timeout=300s
-          # Wait a bit more to ensure webhooks are fully ready
-          sleep 30
-
-      - name: "Configure Cert-Manager Issuers"
-        run: |
-          # Retry mechanism in case of webhook readiness issues
-          kubectl apply -f k8s/cert-manager.yaml || (sleep 30 && kubectl apply -f k8s/cert-manager.yaml)
-
       - name: "Create Namespace"
         run: |
           kubectl create namespace juno-app --dry-run=client -o yaml | kubectl apply -f -
@@ -109,6 +88,10 @@ jobs:
         run: |
           kubectl apply -f k8s/backend-deployment.yaml
           kubectl apply -f k8s/frontend-deployment.yaml
+
+      - name: "Apply SSL Certificate"
+        run: |
+          kubectl apply -f k8s/managed-certificate.yaml
 
       - name: "Apply Ingress"
         run: |

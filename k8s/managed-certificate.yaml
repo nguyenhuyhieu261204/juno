@@ -1,0 +1,8 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: juno-ssl-certificate
+  namespace: juno-app
+spec:
+  domains:
+    - juno-hieu261204.xyz
