@@ -66,22 +66,6 @@ jobs:
           cluster_name: ${{ env.GCP_CLUSTER_NAME }}
           location: ${{ env.GCP_CLUSTER_REGION }}
 
-      - name: "Verify Cert-Manager Installation"
-        run: |
-          kubectl get pods -n cert-manager
-          kubectl wait --for=condition=available deployment/cert-manager --namespace cert-manager --timeout=300s
-          kubectl wait --for=condition=available deployment/cert-manager-webhook --namespace cert-manager --timeout=300s
-
-          # Wait additional time for webhook certificates to be ready
-          sleep 60
-
-      - name: "Configure Cert-Manager Issuers"
-        run: |
-          kubectl apply -f k8s/cluster-issuer.yaml
-
-          # Wait for issuer to be ready
-          sleep 30
-
       - name: "Create Namespace"
         run: |
           kubectl create namespace juno-app --dry-run=client -o yaml | kubectl apply -f -
@@ -123,14 +107,8 @@ jobs:
           echo ""
           echo "Deployment to GKE Autopilot cluster completed successfully!"
           echo ""
+          echo "Application is available at: https://juno-hieu261204.xyz"
+          echo ""
           echo "Checking ingress status..."
           kubectl get ingress --namespace=juno-app
-          echo ""
-          INGRESS_IP=$(kubectl get ingress --namespace=juno-app -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
-          if [ -z "$INGRESS_IP" ]; then
-            echo "Ingress IP not ready yet. It may take a few minutes for the load balancer to provision."
-            echo "You can check the IP later with: kubectl get ingress --namespace=juno-app"
-          else
-            echo "Ingress External IP: $INGRESS_IP"
-          fi
           echo "--------------------------------------------------------"

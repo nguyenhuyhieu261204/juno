@@ -9,10 +9,6 @@ metadata:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
-  tls:
-  - hosts:
-    - juno-hieu261204.xyz
-    secretName: juno-tls-certificate
   rules:
   - host: juno-hieu261204.xyz
     http:
@@ -31,3 +27,7 @@ spec:
               name: juno-frontend-service
               port:
                 number: 80
+  tls:
+  - hosts:
+    - juno-hieu261204.xyz
+    secretName: juno-tls-certificate

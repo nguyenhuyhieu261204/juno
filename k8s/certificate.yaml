@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: juno-tls-certificate
+  namespace: juno-app
+spec:
+  secretName: juno-tls-certificate
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - juno-hieu261204.xyz
