@@ -69,13 +69,16 @@ jobs:
       - name: "Verify Cert-Manager Installation"
         run: |
           kubectl get pods -n cert-manager
-          kubectl wait --for=condition=available deployment/cert-manager --namespace cert-manager --timeout=300s
-          kubectl wait --for=condition=available deployment/cert-manager-webhook --namespace cert-manager --timeout=300s
 
       - name: "Optimize Cert-Manager Resources for Autopilot"
         run: |
           kubectl patch deployment cert-manager -n cert-manager --patch='{"spec":{"template":{"spec":{"containers":[{"name":"cert-manager","resources":{"requests":{"cpu":"50m","memory":"100Mi"},"limits":{"cpu":"100m","memory":"200Mi"}}}]}}}}'
           kubectl patch deployment cert-manager-webhook -n cert-manager --patch='{"spec":{"template":{"spec":{"containers":[{"name":"cert-manager-webhook","resources":{"requests":{"cpu":"100m","memory":"150Mi"},"limits":{"cpu":"200m","memory":"300Mi"}}}]}}}}'
+
+      - name: "Wait for Cert-Manager Ready"
+        run: |
+          kubectl wait --for=condition=available deployment/cert-manager --namespace cert-manager --timeout=300s
+          kubectl wait --for=condition=available deployment/cert-manager-webhook --namespace cert-manager --timeout=300s
 
       - name: "Configure Cert-Manager Issuers"
         run: |
