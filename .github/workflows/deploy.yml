@@ -66,6 +66,22 @@ jobs:
           cluster_name: ${{ env.GCP_CLUSTER_NAME }}
           location: ${{ env.GCP_CLUSTER_REGION }}
 
+      - name: "Install Cert-Manager"
+        run: |
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml
+          kubectl wait --for=condition=available deployment/cert-manager --namespace cert-manager --timeout=300s
+          kubectl wait --for=condition=available deployment/cert-manager-webhook --namespace cert-manager --timeout=300s
+
+          # Wait additional time for webhook certificates to be ready
+          sleep 90
+
+      - name: "Configure Cert-Manager Issuers"
+        run: |
+          kubectl apply -f k8s/cluster-issuer.yaml
+
+          # Wait for issuer to be ready
+          sleep 30
+
       - name: "Create Namespace"
         run: |
           kubectl create namespace juno-app --dry-run=client -o yaml | kubectl apply -f -
@@ -88,10 +104,6 @@ jobs:
         run: |
           kubectl apply -f k8s/backend-deployment.yaml
           kubectl apply -f k8s/frontend-deployment.yaml
-
-      - name: "Apply SSL Certificate"
-        run: |
-          kubectl apply -f k8s/managed-certificate.yaml
 
       - name: "Apply Ingress"
         run: |

@@ -4,10 +4,15 @@ metadata:
   name: juno-ingress
   namespace: juno-app
   annotations:
-    kubernetes.io/ingress.class: "gce"
-    networking.gke.io/managed-certificates: "juno-ssl-certificate"
-    kubernetes.io/ingress.global-static-ip-name: "juno-ip"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - juno-hieu261204.xyz
+    secretName: juno-tls-certificate
   rules:
   - host: juno-hieu261204.xyz
     http:
