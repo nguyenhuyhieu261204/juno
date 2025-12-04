@@ -79,10 +79,13 @@ jobs:
         run: |
           kubectl wait --for=condition=available deployment/cert-manager --namespace cert-manager --timeout=300s
           kubectl wait --for=condition=available deployment/cert-manager-webhook --namespace cert-manager --timeout=300s
+          # Wait a bit more to ensure webhooks are fully ready
+          sleep 30
 
       - name: "Configure Cert-Manager Issuers"
         run: |
-          kubectl apply -f k8s/cert-manager.yaml
+          # Retry mechanism in case of webhook readiness issues
+          kubectl apply -f k8s/cert-manager.yaml || (sleep 30 && kubectl apply -f k8s/cert-manager.yaml)
 
       - name: "Create Namespace"
         run: |
