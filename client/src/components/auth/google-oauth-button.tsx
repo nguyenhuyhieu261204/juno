@@ -5,6 +5,12 @@ const GoogleOauthButton = (props: { label: string }) => {
   const { label } = props;
 
   const handleClick = () => {
+    const eventName = label.toLowerCase().includes("signup")
+      ? "sign_up"
+      : "login";
+    window.gtag("event", eventName, {
+      method: "google",
+    });
     window.location.href = `${baseURL}/auth/google`;
   };
   return (

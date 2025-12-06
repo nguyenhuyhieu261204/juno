@@ -57,6 +57,9 @@ const SignUp = () => {
     if (isPending) return;
     mutate(values, {
       onSuccess: () => {
+        window.gtag("event", "sign_up", {
+          method: "manual",
+        });
         navigate("/");
       },
       onError: (error) => {

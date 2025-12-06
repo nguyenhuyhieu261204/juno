@@ -59,6 +59,11 @@ const SignIn = () => {
       onSuccess: (data) => {
         const user = data.user;
         console.log(user);
+
+        window.gtag("event", "login", {
+          method: "manual",
+        });
+
         const decodedUrl = returnUrl ? decodeURIComponent(returnUrl) : null;
         navigate(decodedUrl || `/workspace/${user.currentWorkspace}`);
       },
