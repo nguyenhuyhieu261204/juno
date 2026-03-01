@@ -1,7 +1,6 @@
 import { CustomError } from "@/types/custom-error.type";
+import { baseURL } from "@/lib/base-url";
 import axios from "axios";
-
-const baseURL = "/api";
 
 const options = {
   baseURL,
@@ -28,7 +27,7 @@ API.interceptors.response.use(
     };
 
     return Promise.reject(customError);
-  }
+  },
 );
 
 export default API;
