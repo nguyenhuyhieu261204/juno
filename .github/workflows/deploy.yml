@@ -36,8 +36,8 @@ env:
   BACKEND_SERVICE: juno-backend
   FRONTEND_SERVICE: juno-frontend
   GAR_LOCATION: ${{ secrets.GCP_REGION }}-docker.pkg.dev
-  BACKEND_IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/frontend-juno-repo/backend
-  FRONTEND_IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-juno-repo/frontend
+  BACKEND_IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-juno-repo/backend
+  FRONTEND_IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/frontend-juno-repo/frontend
 
 jobs:
   # ================================================
