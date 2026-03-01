@@ -20,10 +20,10 @@
 # SESSION_EXPIRES_IN      — e.g. "1d"
 # GOOGLE_CLIENT_ID        — Google OAuth client ID
 # GOOGLE_CLIENT_SECRET    — Google OAuth client secret
-# GOOGLE_CALLBACK_URL     — e.g. https://teamsync-backend-xxx.run.app/api/auth/google/callback
-# FRONTEND_ORIGIN         — e.g. https://teamsync-frontend-xxx.run.app
-# FRONTEND_GOOGLE_CALLBACK_URL — e.g. https://teamsync-frontend-xxx.run.app/google/callback
-# VITE_API_BASE_URL       — e.g. https://teamsync-backend-xxx.run.app/api
+# GOOGLE_CALLBACK_URL     — e.g. https://juno-backend-xxx.run.app/api/auth/google/callback
+# FRONTEND_ORIGIN         — e.g. https://juno-frontend-xxx.run.app
+# FRONTEND_GOOGLE_CALLBACK_URL — e.g. https://juno-frontend-xxx.run.app/google/callback
+# VITE_API_BASE_URL       — e.g. https://juno-backend-xxx.run.app/api
 
 name: Deploy to Cloud Run
 
@@ -33,11 +33,11 @@ on:
   workflow_dispatch: # allow manual trigger
 
 env:
-  BACKEND_SERVICE: teamsync-backend
-  FRONTEND_SERVICE: teamsync-frontend
+  BACKEND_SERVICE: juno-backend
+  FRONTEND_SERVICE: juno-frontend
   GAR_LOCATION: ${{ secrets.GCP_REGION }}-docker.pkg.dev
-  BACKEND_IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/teamsync/backend
-  FRONTEND_IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/teamsync/frontend
+  BACKEND_IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/frontend-juno-repo/backend
+  FRONTEND_IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-juno-repo/frontend
 
 jobs:
   # ================================================
